@@ -16,6 +16,31 @@ export const setupUser = async () => {
   ]);
 };
 
+export const setupCommitSigning = async (gpgPrivateKey: string) => {
+  await exec("echo", [
+    gpgPrivateKey,
+    ">",
+    "private.key"
+  ]);
+  await exec("gpg", [
+    "--import",
+    "private.key"
+  ]);
+  await exec(`GPG_KEY_ID=$(gpg --list-secret-keys --with-colons | grep "^sec:" | cut -d ":" -f 5)`);
+  await exec("git", [
+    "config",
+    "--global",
+    "user.signingkey",
+    `"$GPG_KEY_ID"`,
+  ]);
+  await exec("git", [
+    "config",
+    "--global",
+    "commit.gpgsign",
+    "true",
+  ]);
+}
+
 export const pullBranch = async (branch: string) => {
   await exec("git", ["pull", "origin", branch]);
 };

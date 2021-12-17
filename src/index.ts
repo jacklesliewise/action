@@ -17,6 +17,13 @@ const getOptionalInput = (name: string) => core.getInput(name) || undefined;
   console.log("setting git user");
   await gitUtils.setupUser();
 
+  const gpgPrivateKey = getOptionalInput('gpg_private_key');
+
+  if (gpgPrivateKey) {
+    console.log("enabling git commit signing");
+    await gitUtils.setupCommitSigning(gpgPrivateKey);
+  }
+
   console.log("setting GitHub credentials");
   await fs.writeFile(
     `${process.env.HOME}/.netrc`,
